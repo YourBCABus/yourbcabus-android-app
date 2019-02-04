@@ -29,5 +29,7 @@
                 android:value="com.yourbcabus.android.yourbcabus.BusListActivity" />
         </activity>
     </application>
+    
+    <uses-permission android:name="android.permission.INTERNET" />
 
 </manifest>
