@@ -25,11 +25,17 @@ import kotlinx.android.synthetic.main.bus_list.*
  */
 class BusListActivity : AppCompatActivity() {
 
+    val schoolId = "5bca51e785aa2627e14db459"
+
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
      * device.
      */
     private var twoPane: Boolean = false
+
+    private val busObserver: Observer = {
+        bus_list.adapter?.notifyDataSetChanged()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,10 +58,38 @@ class BusListActivity : AppCompatActivity() {
         }
 
         setupRecyclerView(bus_list)
+
+        AndroidAPIService.standard.on(AndroidAPIService.standard.BUSES_CHANGED_EVENT, busObserver)
+        AndroidAPIService.standard.reloadBuses(schoolId)
     }
 
     private fun setupRecyclerView(recyclerView: RecyclerView) {
-        recyclerView.adapter = SimpleItemRecyclerViewAdapter(this, DummyContent.ITEMS, twoPane)
+        recyclerView.adapter = SimpleBusRecyclerViewAdapter(this, AndroidAPIService.standard, twoPane)
+    }
+
+    class SimpleBusRecyclerViewAdapter(private val parentActivity: BusListActivity, private val api: APIService, private val twoPane: Boolean): RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder>() {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SimpleItemRecyclerViewAdapter.ViewHolder {
+            val view = LayoutInflater.from(parent.context)
+                    .inflate(R.layout.bus_list_content, parent, false)
+            return SimpleItemRecyclerViewAdapter.ViewHolder(view)
+        }
+
+        override fun onBindViewHolder(holder: SimpleItemRecyclerViewAdapter.ViewHolder, position: Int) {
+            val item = api.buses[position]
+            holder.idView.text = position.toString()
+            holder.contentView.text = item.name
+
+            with(holder.itemView) {
+                tag = item
+            }
+        }
+
+        override fun getItemCount() = api.buses.size
+
+        inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+            val idView: TextView = view.id_text
+            val contentView: TextView = view.content
+        }
     }
 
     class SimpleItemRecyclerViewAdapter(private val parentActivity: BusListActivity,
@@ -106,9 +140,14 @@ class BusListActivity : AppCompatActivity() {
 
         override fun getItemCount() = values.size
 
-        inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             val idView: TextView = view.id_text
             val contentView: TextView = view.content
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        AndroidAPIService.standard.off(AndroidAPIService.standard.BUSES_CHANGED_EVENT, busObserver)
     }
 }

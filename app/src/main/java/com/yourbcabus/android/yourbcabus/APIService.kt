@@ -1,5 +1,6 @@
 package com.yourbcabus.android.yourbcabus
 
+import android.app.Application
 import com.android.volley.Request
 import com.android.volley.RequestQueue
 import com.android.volley.Response
@@ -23,7 +24,7 @@ abstract class APIService(url: URL): EventEmitter {
     val BUSES_CHANGED_EVENT = "busesChanged"
 
     val url = url
-    private val klaxon = Klaxon()
+    private val klaxon = Klaxon().fieldConverter(KlaxonDate::class, KlaxonDate)
 
     private var busList = listOf<Bus>()
     private var busMap = mapOf<String, Int>()
@@ -33,9 +34,17 @@ abstract class APIService(url: URL): EventEmitter {
 
     protected abstract fun fetchURL(url: String, handler: FetchURLHandler, errorHandler: FetchErrorHandler)
 
+    private fun transformURL(path: String) = URL(url, path)
+
     private inline fun <reified Resource> fetchResource(path: String, crossinline handler: FetchResourceHandler<Resource>, noinline errorHandler: FetchErrorHandler) {
-        fetchURL(URL(url, path).toString(), {
+        fetchURL(transformURL(path).toString(), {
             handler(klaxon.parse<Resource>(it)!!)
+        }, errorHandler)
+    }
+
+    private inline fun <reified Resource> fetchResourceArray(path: String, crossinline handler: FetchResourceHandler<List<Resource>>, noinline errorHandler: FetchErrorHandler) {
+        fetchURL(transformURL(path).toString(), {
+            handler(klaxon.parseArray(it)!!)
         }, errorHandler)
     }
 
@@ -52,14 +61,14 @@ abstract class APIService(url: URL): EventEmitter {
     }
 
     fun reloadBuses(school: String) {
-        fetchResource<List<Bus>>("/schools/$school/buses", { setBuses(it) }, {})
+        fetchResourceArray<Bus>("/schools/$school/buses", { setBuses(it) }, {})
     }
 
     fun reloadBus(school: String, bus: String) {
         fetchResource<Bus>("/schools/$school/buses/$bus", {
             busList = busList.toMutableList().apply {
                 if (busMap[bus] == null) {
-                    busMap = busMap.toMutableMap().apply { set(bus, busList.size) }.toMap()
+                    busMap = busMap.toMutableMap().apply { set(bus, size) }.toMap()
                 }
 
                 set(busMap.getValue(bus), it)
@@ -91,6 +100,6 @@ class AndroidAPIService(url: URL, requestQueue: RequestQueue = RequestQueue(NoCa
     }
 
     companion object {
-        @JvmStatic val static = AndroidAPIService(URL("https://yourbcabus.com"))
+        @JvmStatic val standard = AndroidAPIService(URL("https://db.yourbcabus.com"))
     }
 }
