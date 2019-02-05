@@ -19,12 +19,17 @@ typealias FetchErrorHandler = (FetchError) -> Unit
 
 private typealias FetchResourceHandler<Resource> = (Resource) -> Unit
 
-abstract class APIService(url: URL) {
+abstract class APIService(url: URL): EventEmitter {
+    val BUSES_CHANGED_EVENT = "busesChanged"
+
     val url = url
     private val klaxon = Klaxon()
 
     private var busList = listOf<Bus>()
     private var busMap = mapOf<String, Int>()
+
+    override val observers = HashMap<String, MutableList<Observer>>()
+    override val onceObservers = HashMap<String, MutableList<Observer>>()
 
     protected abstract fun fetchURL(url: String, handler: FetchURLHandler, errorHandler: FetchErrorHandler)
 
@@ -42,6 +47,8 @@ abstract class APIService(url: URL) {
             map[bus._id] = index
         }
         busMap = map.toMap()
+
+        emit(BUSES_CHANGED_EVENT, null)
     }
 
     fun reloadBuses(school: String) {
@@ -57,12 +64,11 @@ abstract class APIService(url: URL) {
 
                 set(busMap.getValue(bus), it)
             }.toList()
+            emit(BUSES_CHANGED_EVENT, null)
         }, {})
     }
 
-    fun getBuses(): List<Bus> {
-        return busList
-    }
+    val buses get() = busList
 
     fun getBus(_id: String): Bus? {
         return busMap[_id]?.let { busList[it] }
