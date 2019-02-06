@@ -1,6 +1,5 @@
 package com.yourbcabus.android.yourbcabus
 
-import android.app.Application
 import com.android.volley.Request
 import com.android.volley.RequestQueue
 import com.android.volley.Response
@@ -20,10 +19,9 @@ typealias FetchErrorHandler = (FetchError) -> Unit
 
 private typealias FetchResourceHandler<Resource> = (Resource) -> Unit
 
-abstract class APIService(url: URL): EventEmitter {
+abstract class APIService(val url: URL, val schoolId: String): EventEmitter {
     val BUSES_CHANGED_EVENT = "busesChanged"
 
-    val url = url
     private val klaxon = Klaxon().fieldConverter(KlaxonDate::class, KlaxonDate)
 
     private var busList = listOf<Bus>()
@@ -60,12 +58,16 @@ abstract class APIService(url: URL): EventEmitter {
         emit(BUSES_CHANGED_EVENT, null)
     }
 
-    fun reloadBuses(school: String) {
-        fetchResourceArray<Bus>("/schools/$school/buses", { setBuses(it) }, {})
+    fun reloadBuses() {
+        fetchResourceArray<Bus>("/schools/$schoolId/buses", { setBuses(it) }, {})
     }
 
-    fun reloadBus(school: String, bus: String) {
-        fetchResource<Bus>("/schools/$school/buses/$bus", {
+    @Deprecated(message = "Use reloadBuses() instead.") fun reloadBuses(school: String) {
+        reloadBuses()
+    }
+
+    fun reloadBus(bus: String) {
+        fetchResource<Bus>("/schools/$schoolId/buses/$bus", {
             busList = busList.toMutableList().apply {
                 if (busMap[bus] == null) {
                     busMap = busMap.toMutableMap().apply { set(bus, size) }.toMap()
@@ -77,6 +79,10 @@ abstract class APIService(url: URL): EventEmitter {
         }, {})
     }
 
+    @Deprecated(message = "Use reloadBus(String) instead.") fun reloadBus(school: String, bus: String) {
+        reloadBus(bus)
+    }
+
     val buses get() = busList
 
     fun getBus(_id: String): Bus? {
@@ -84,7 +90,7 @@ abstract class APIService(url: URL): EventEmitter {
     }
 }
 
-class AndroidAPIService(url: URL, requestQueue: RequestQueue = RequestQueue(NoCache(), BasicNetwork(HurlStack()))): APIService(url) {
+class AndroidAPIService(url: URL, schoolId: String, requestQueue: RequestQueue = RequestQueue(NoCache(), BasicNetwork(HurlStack()))): APIService(url, schoolId) {
     private val requestQueue = requestQueue.apply {
         start()
     }
@@ -100,6 +106,20 @@ class AndroidAPIService(url: URL, requestQueue: RequestQueue = RequestQueue(NoCa
     }
 
     companion object {
-        @JvmStatic val standard = AndroidAPIService(URL("https://db.yourbcabus.com"))
+        @Deprecated(message = "Use standardForSchool(String) instead.") @JvmStatic val standard get() = standardForSchool("5bca51e785aa2627e14db459")
+
+        private val standards: MutableMap<String, AndroidAPIService> = HashMap()
+
+        private fun createAPIServiceForSchool(school: String): AndroidAPIService {
+            return AndroidAPIService(URL("https://db.yourbcabus.com"), school)
+        }
+
+        @JvmStatic fun standardForSchool(school: String): AndroidAPIService {
+            if (!standards.containsKey(school)) {
+                standards[school] = createAPIServiceForSchool(school)
+            }
+
+            return standards.getValue(school)
+        }
     }
 }
