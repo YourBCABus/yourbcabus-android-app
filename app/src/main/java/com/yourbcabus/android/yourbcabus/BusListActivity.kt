@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.RecyclerView
-import android.support.design.widget.Snackbar
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,6 +13,8 @@ import com.yourbcabus.android.yourbcabus.dummy.DummyContent
 import kotlinx.android.synthetic.main.activity_bus_list.*
 import kotlinx.android.synthetic.main.bus_list_content.view.*
 import kotlinx.android.synthetic.main.bus_list.*
+import android.support.v4.widget.SwipeRefreshLayout
+
 
 /**
  * An activity representing a list of Pings. This activity
@@ -37,6 +38,8 @@ class BusListActivity : AppCompatActivity() {
         bus_list.adapter?.notifyDataSetChanged()
     }
 
+    private var swipeRefreshLayout: SwipeRefreshLayout? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_bus_list)
@@ -56,6 +59,15 @@ class BusListActivity : AppCompatActivity() {
 
         AndroidAPIService.standard.on(AndroidAPIService.standard.BUSES_CHANGED_EVENT, busObserver)
         AndroidAPIService.standard.reloadBuses(schoolId)
+
+        swipeRefreshLayout = findViewById<SwipeRefreshLayout>(R.id.swiperefresh)
+
+        swipeRefreshLayout?.setOnRefreshListener(
+                SwipeRefreshLayout.OnRefreshListener {
+                    AndroidAPIService.standardForSchool(schoolId).reloadBuses {}
+                    swipeRefreshLayout?.isRefreshing = false
+                }
+        )
     }
 
     private fun setupRecyclerView(recyclerView: RecyclerView) {
