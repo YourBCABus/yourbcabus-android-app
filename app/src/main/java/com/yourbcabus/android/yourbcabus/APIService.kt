@@ -13,6 +13,11 @@ typealias FetchErrorHandler = (FetchError) -> Unit
 
 private typealias FetchResourceHandler<Resource> = (Resource) -> Unit
 
+private class StopManager {
+    var list = listOf<Stop>()
+    var map = mapOf<String, Int>()
+}
+
 abstract class APIService(val url: URL, val schoolId: String): EventEmitter {
     @Deprecated("Use APIService.BUSES_CHANGED_EVENT instead.") val BUSES_CHANGED_EVENT get() = APIService.BUSES_CHANGED_EVENT
 
@@ -25,6 +30,8 @@ abstract class APIService(val url: URL, val schoolId: String): EventEmitter {
 
     private var busList = listOf<Bus>()
     private var busMap = mapOf<String, Int>()
+
+    private var stops: MutableMap<String, StopManager> = HashMap()
 
     override val observers = HashMap<String, MutableList<Observer>>()
     override val onceObservers = HashMap<String, MutableList<Observer>>()
@@ -94,8 +101,20 @@ abstract class APIService(val url: URL, val schoolId: String): EventEmitter {
         return busMap[_id]?.let { busList[it] }
     }
 
+    fun getStops(bus: String): List<Stop> {
+        return stops[bus]?.list ?: listOf()
+    }
+
+    fun getStop(bus: String, stop: String): Stop? {
+        return stops[bus]?.map?.get(stop)?.let { stops[bus]!!.list[it] }
+    }
+
     companion object {
         @JvmStatic val SCHOOL_CHANGED_EVENT = "schoolChanged"
         val BUSES_CHANGED_EVENT = "busesChanged"
+        val STOPS_CHANGED_EVENT = "stopsChanged"
+        @JvmStatic fun STOPS_CHANGED_EVENT_FOR(bus: String): String {
+            return "$STOPS_CHANGED_EVENT.$bus"
+        }
     }
 }
