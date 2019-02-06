@@ -4,15 +4,27 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal">
 
-    <TextView
-        android:id="@+id/bus_name"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_centerVertical="true"
         android:layout_margin="@dimen/text_margin"
-        android:text="Lorem Ipsum"
-        android:textAppearance="?attr/textAppearanceListItem" />
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/bus_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/lorem_ipsum"
+            android:textAppearance="?attr/textAppearanceListItem" />
+
+        <TextView
+            android:id="@+id/bus_details"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/lorem_ipsum"
+            android:textAppearance="?attr/textAppearanceListItemSecondary"
+            android:textColor="@color/textSecondary" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/bus_location"
@@ -21,8 +33,8 @@
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
         android:layout_margin="@dimen/text_margin"
-        android:text="Z9"
         android:background="@drawable/rounded_textview"
-        android:textAppearance="?attr/textAppearanceListItem"
-        android:gravity="center" />
+        android:gravity="center"
+        android:text="Z9"
+        android:textAppearance="?attr/textAppearanceListItem" />
 </RelativeLayout>

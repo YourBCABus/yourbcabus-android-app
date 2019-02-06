@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">YourBCABus</string>
     <string name="title_bus_detail">Bus Detail</string>
+    <string name="lorem_ipsum">Lorem Ipsum</string>
 </resources>
