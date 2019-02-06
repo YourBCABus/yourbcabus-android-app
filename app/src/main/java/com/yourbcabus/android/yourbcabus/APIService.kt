@@ -1,15 +1,8 @@
 package com.yourbcabus.android.yourbcabus
 
-import android.app.Application
-import com.android.volley.Request
-import com.android.volley.RequestQueue
-import com.android.volley.Response
-import com.android.volley.toolbox.BasicNetwork
-import com.android.volley.toolbox.HurlStack
-import com.android.volley.toolbox.NoCache
-import com.android.volley.toolbox.StringRequest
 import com.beust.klaxon.Klaxon
 import java.net.URL
+import kotlin.properties.Delegates
 
 enum class FetchError {
     OTHER
@@ -17,17 +10,24 @@ enum class FetchError {
 
 typealias FetchURLHandler = (String) -> Unit
 typealias FetchErrorHandler = (FetchError) -> Unit
+typealias RefreshHandler = (Boolean) -> Unit
 
 private typealias FetchResourceHandler<Resource> = (Resource) -> Unit
 
-abstract class APIService(url: URL): EventEmitter {
-    val BUSES_CHANGED_EVENT = "busesChanged"
+abstract class APIService(val url: URL, val schoolId: String): EventEmitter {
+    @Deprecated("Use APIService.BUSES_CHANGED_EVENT instead.") val BUSES_CHANGED_EVENT get() = APIService.BUSES_CHANGED_EVENT
 
-    val url = url
     private val klaxon = Klaxon().fieldConverter(KlaxonDate::class, KlaxonDate)
+
+    private var _school by Delegates.observable<School?>(null) { _, _, _ ->
+        emit(SCHOOL_CHANGED_EVENT, null)
+    }
+    val school get() = _school
 
     private var busList = listOf<Bus>()
     private var busMap = mapOf<String, Int>()
+
+    private var stops: MutableMap<String, StopManager> = HashMap()
 
     override val observers = HashMap<String, MutableList<Observer>>()
     override val onceObservers = HashMap<String, MutableList<Observer>>()
@@ -60,12 +60,30 @@ abstract class APIService(url: URL): EventEmitter {
         emit(BUSES_CHANGED_EVENT, null)
     }
 
-    fun reloadBuses(school: String) {
-        fetchResourceArray<Bus>("/schools/$school/buses", { setBuses(it) }, {})
+    fun reloadSchool(refreshHandler: RefreshHandler? = null) {
+        fetchResource<School>("/schools/$schoolId", {
+            _school = it
+            refreshHandler?.let { it(true) }
+        }, {
+            refreshHandler?.let { it(false) }
+        })
     }
 
-    fun reloadBus(school: String, bus: String) {
-        fetchResource<Bus>("/schools/$school/buses/$bus", {
+    fun reloadBuses(refreshHandler: RefreshHandler? = null) {
+        fetchResourceArray<Bus>("/schools/$schoolId/buses", {
+            setBuses(it)
+            refreshHandler?.let { it(true) }
+        }, {
+            refreshHandler?.let { it(false) }
+        })
+    }
+
+    @Deprecated(message = "Use reloadBuses() instead.") fun reloadBuses(school: String) {
+        reloadBuses()
+    }
+
+    fun reloadBus(bus: String, refreshHandler: RefreshHandler? = null) {
+        fetchResource<Bus>("/schools/$schoolId/buses/$bus", {
             busList = busList.toMutableList().apply {
                 if (busMap[bus] == null) {
                     busMap = busMap.toMutableMap().apply { set(bus, size) }.toMap()
@@ -74,7 +92,25 @@ abstract class APIService(url: URL): EventEmitter {
                 set(busMap.getValue(bus), it)
             }.toList()
             emit(BUSES_CHANGED_EVENT, null)
-        }, {})
+            refreshHandler?.let { it(true) }
+        }, {
+            refreshHandler?.let { it(false) }
+        })
+    }
+
+    @Deprecated(message = "Use reloadBus(String) instead.") fun reloadBus(school: String, bus: String) {
+        reloadBus(bus)
+    }
+
+    fun reloadStops(bus: String, refreshHandler: RefreshHandler? = null) {
+        fetchResourceArray<Stop>("/schools/$schoolId/buses/$bus/stops", {
+            stops[bus] = StopManager(it)
+            emit(STOPS_CHANGED_EVENT_FOR(bus), null)
+            emit(STOPS_CHANGED_EVENT, bus)
+            refreshHandler?.let { it(true) }
+        }, {
+            refreshHandler?.let { it(false) }
+        })
     }
 
     val buses get() = busList
@@ -82,24 +118,30 @@ abstract class APIService(url: URL): EventEmitter {
     fun getBus(_id: String): Bus? {
         return busMap[_id]?.let { busList[it] }
     }
-}
 
-class AndroidAPIService(url: URL, requestQueue: RequestQueue = RequestQueue(NoCache(), BasicNetwork(HurlStack()))): APIService(url) {
-    private val requestQueue = requestQueue.apply {
-        start()
+    fun getStops(bus: String): List<Stop> {
+        return stops[bus]?.list ?: listOf()
     }
 
-    override fun fetchURL(url: String, handler: FetchURLHandler, errorHandler: FetchErrorHandler) {
-        val request = StringRequest(Request.Method.GET, url, Response.Listener<String> {
-            handler(it)
-        }, Response.ErrorListener {
-            errorHandler(FetchError.OTHER)
-        })
+    fun getStop(bus: String, stop: String): Stop? {
+        return stops[bus]?.map?.get(stop)?.let { stops[bus]!!.list[it] }
+    }
 
-        requestQueue.add(request)
+    protected class StopManager(list: List<Stop> = listOf()) {
+        var list: List<Stop> = list
+        var map: Map<String, Int> = HashMap<String, Int>().apply {
+            list.forEachIndexed { index, bus ->
+                set(bus._id, index)
+            }
+        }
     }
 
     companion object {
-        @JvmStatic val standard = AndroidAPIService(URL("https://db.yourbcabus.com"))
+        @JvmStatic val SCHOOL_CHANGED_EVENT = "schoolChanged"
+        val BUSES_CHANGED_EVENT = "busesChanged"
+        val STOPS_CHANGED_EVENT = "stopsChanged"
+        @JvmStatic fun STOPS_CHANGED_EVENT_FOR(bus: String): String {
+            return "$STOPS_CHANGED_EVENT.$bus"
+        }
     }
 }
