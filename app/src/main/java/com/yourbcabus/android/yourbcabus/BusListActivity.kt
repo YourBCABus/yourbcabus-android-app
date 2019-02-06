@@ -75,9 +75,9 @@ class BusListActivity : AppCompatActivity() {
         }
 
         override fun onBindViewHolder(holder: SimpleItemRecyclerViewAdapter.ViewHolder, position: Int) {
-            val item = api.buses[position]
-            holder.idView.text = position.toString()
-            holder.contentView.text = item.name
+            val item = api.buses.sortedBy{ it.name }[position]
+            holder.busNameView.text = item.name
+            holder.busLocationView.text = item.locations?.firstOrNull()?.substring(0,2)
 
             with(holder.itemView) {
                 tag = item
@@ -87,8 +87,8 @@ class BusListActivity : AppCompatActivity() {
         override fun getItemCount() = api.buses.size
 
         inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-            val idView: TextView = view.id_text
-            val contentView: TextView = view.content
+            val busNameView: TextView = view.bus_name
+            val busLocationView: TextView = view.bus_location
         }
     }
 
@@ -129,8 +129,8 @@ class BusListActivity : AppCompatActivity() {
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val item = values[position]
-            holder.idView.text = item.id
-            holder.contentView.text = item.content
+            holder.busNameView.text = item.content
+            holder.busLocationView.text = item.content
 
             with(holder.itemView) {
                 tag = item
@@ -141,8 +141,8 @@ class BusListActivity : AppCompatActivity() {
         override fun getItemCount() = values.size
 
         class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-            val idView: TextView = view.id_text
-            val contentView: TextView = view.content
+            val busNameView: TextView = view.bus_name
+            val busLocationView: TextView = view.bus_location
         }
     }
 
