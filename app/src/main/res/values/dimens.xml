@@ -4,4 +4,11 @@
     <dimen name="app_bar_height">200dp</dimen>
     <dimen name="item_width">200dp</dimen>
     <dimen name="text_margin">16dp</dimen>
+    <dimen name="bus_location">40dp</dimen>
+    <dimen name="bus_location_bg_radius">17dp</dimen>
+    <!-- "bus_location_bg_radius" should be:
+     * half of "bus_location" for a circle
+     * less than half (eg. 10/15dp) for a rounded rectangle
+     -->
+    <dimen name="bus_location_text">22sp</dimen>
 </resources>

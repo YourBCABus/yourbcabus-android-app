@@ -67,7 +67,7 @@ class BusListActivity : AppCompatActivity() {
         recyclerView.adapter = SimpleBusRecyclerViewAdapter(this, AndroidAPIService.standard, twoPane)
     }
 
-    class SimpleBusRecyclerViewAdapter(private val parentActivity: BusListActivity, private val api: APIService, private val twoPane: Boolean): RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder>() {
+    class SimpleBusRecyclerViewAdapter(private val parentActivity: BusListActivity, private val api: APIService, private val twoPane: Boolean) : RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder>() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SimpleItemRecyclerViewAdapter.ViewHolder {
             val view = LayoutInflater.from(parent.context)
                     .inflate(R.layout.bus_list_content, parent, false)
@@ -75,9 +75,10 @@ class BusListActivity : AppCompatActivity() {
         }
 
         override fun onBindViewHolder(holder: SimpleItemRecyclerViewAdapter.ViewHolder, position: Int) {
-            val item = api.buses.sortedBy{ it.name }[position]
+            val item = api.buses.sortedBy { it.name }[position]
             holder.busNameView.text = item.name
-            holder.busLocationView.text = item.locations?.firstOrNull()?.substring(0,2)
+            holder.busLocationView.text = item.locations?.firstOrNull()?.substring(0, 2)
+            holder.busLocationView.text = if (holder.busLocationView.text != "") holder.busLocationView.text else "NA"
 
             with(holder.itemView) {
                 tag = item

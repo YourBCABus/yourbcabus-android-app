@@ -26,15 +26,23 @@
             android:textColor="@color/textSecondary" />
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/bus_location"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <RelativeLayout
+        android:layout_width="@dimen/bus_location"
+        android:layout_height="@dimen/bus_location"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
         android:layout_margin="@dimen/text_margin"
-        android:background="@drawable/rounded_textview"
-        android:gravity="center"
-        android:text="Z9"
-        android:textAppearance="?attr/textAppearanceListItem" />
+        android:background="@drawable/bg_list_item">
+
+        <TextView
+            android:id="@+id/bus_location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:text="Z9"
+            android:textAppearance="?attr/textAppearanceListItem"
+            android:textColor="@color/white"
+            android:textSize="@dimen/bus_location_text" />
+    </RelativeLayout>
 </RelativeLayout>
