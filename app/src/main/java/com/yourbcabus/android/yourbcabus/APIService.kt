@@ -9,6 +9,7 @@ import com.android.volley.toolbox.NoCache
 import com.android.volley.toolbox.StringRequest
 import com.beust.klaxon.Klaxon
 import java.net.URL
+import kotlin.properties.Delegates
 
 enum class FetchError {
     OTHER
@@ -23,6 +24,11 @@ abstract class APIService(val url: URL, val schoolId: String): EventEmitter {
     @Deprecated("Use APIService.BUSES_CHANGED_EVENT instead.") val BUSES_CHANGED_EVENT get() = APIService.BUSES_CHANGED_EVENT
 
     private val klaxon = Klaxon().fieldConverter(KlaxonDate::class, KlaxonDate)
+
+    private var _school by Delegates.observable<School?>(null) { _, _, _ ->
+        emit(SCHOOL_CHANGED_EVENT, null)
+    }
+    val school get() = _school
 
     private var busList = listOf<Bus>()
     private var busMap = mapOf<String, Int>()
@@ -58,6 +64,12 @@ abstract class APIService(val url: URL, val schoolId: String): EventEmitter {
         emit(BUSES_CHANGED_EVENT, null)
     }
 
+    fun reloadSchool() {
+        fetchResource<School>("/schools/$schoolId", {
+            _school = it
+        }, {})
+    }
+
     fun reloadBuses() {
         fetchResourceArray<Bus>("/schools/$schoolId/buses", { setBuses(it) }, {})
     }
@@ -90,6 +102,7 @@ abstract class APIService(val url: URL, val schoolId: String): EventEmitter {
     }
 
     companion object {
+        @JvmStatic val SCHOOL_CHANGED_EVENT = "schoolChanged"
         val BUSES_CHANGED_EVENT = "busesChanged"
     }
 }
