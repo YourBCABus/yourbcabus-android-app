@@ -10,6 +10,7 @@ enum class FetchError {
 
 typealias FetchURLHandler = (String) -> Unit
 typealias FetchErrorHandler = (FetchError) -> Unit
+typealias RefreshHandler = (Boolean) -> Unit
 
 private typealias FetchResourceHandler<Resource> = (Resource) -> Unit
 
@@ -59,21 +60,29 @@ abstract class APIService(val url: URL, val schoolId: String): EventEmitter {
         emit(BUSES_CHANGED_EVENT, null)
     }
 
-    fun reloadSchool() {
+    fun reloadSchool(refreshHandler: RefreshHandler? = null) {
         fetchResource<School>("/schools/$schoolId", {
             _school = it
-        }, {})
+            refreshHandler?.let { it(true) }
+        }, {
+            refreshHandler?.let { it(false) }
+        })
     }
 
-    fun reloadBuses() {
-        fetchResourceArray<Bus>("/schools/$schoolId/buses", { setBuses(it) }, {})
+    fun reloadBuses(refreshHandler: RefreshHandler? = null) {
+        fetchResourceArray<Bus>("/schools/$schoolId/buses", {
+            setBuses(it)
+            refreshHandler?.let { it(true) }
+        }, {
+            refreshHandler?.let { it(false) }
+        })
     }
 
     @Deprecated(message = "Use reloadBuses() instead.") fun reloadBuses(school: String) {
         reloadBuses()
     }
 
-    fun reloadBus(bus: String) {
+    fun reloadBus(bus: String, refreshHandler: RefreshHandler? = null) {
         fetchResource<Bus>("/schools/$schoolId/buses/$bus", {
             busList = busList.toMutableList().apply {
                 if (busMap[bus] == null) {
@@ -83,19 +92,25 @@ abstract class APIService(val url: URL, val schoolId: String): EventEmitter {
                 set(busMap.getValue(bus), it)
             }.toList()
             emit(BUSES_CHANGED_EVENT, null)
-        }, {})
+            refreshHandler?.let { it(true) }
+        }, {
+            refreshHandler?.let { it(false) }
+        })
     }
 
     @Deprecated(message = "Use reloadBus(String) instead.") fun reloadBus(school: String, bus: String) {
         reloadBus(bus)
     }
 
-    fun reloadStops(bus: String) {
+    fun reloadStops(bus: String, refreshHandler: RefreshHandler? = null) {
         fetchResourceArray<Stop>("/schools/$schoolId/buses/$bus/stops", {
             stops[bus] = StopManager(it)
             emit(STOPS_CHANGED_EVENT_FOR(bus), null)
             emit(STOPS_CHANGED_EVENT, bus)
-        }, {})
+            refreshHandler?.let { it(true) }
+        }, {
+            refreshHandler?.let { it(false) }
+        })
     }
 
     val buses get() = busList
