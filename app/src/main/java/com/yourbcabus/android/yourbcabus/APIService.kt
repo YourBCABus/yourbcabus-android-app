@@ -20,7 +20,7 @@ typealias FetchErrorHandler = (FetchError) -> Unit
 private typealias FetchResourceHandler<Resource> = (Resource) -> Unit
 
 abstract class APIService(val url: URL, val schoolId: String): EventEmitter {
-    val BUSES_CHANGED_EVENT = "busesChanged"
+    @Deprecated("Use APIService.BUSES_CHANGED_EVENT instead.") val BUSES_CHANGED_EVENT get() = APIService.BUSES_CHANGED_EVENT
 
     private val klaxon = Klaxon().fieldConverter(KlaxonDate::class, KlaxonDate)
 
@@ -87,6 +87,10 @@ abstract class APIService(val url: URL, val schoolId: String): EventEmitter {
 
     fun getBus(_id: String): Bus? {
         return busMap[_id]?.let { busList[it] }
+    }
+
+    companion object {
+        val BUSES_CHANGED_EVENT = "busesChanged"
     }
 }
 
