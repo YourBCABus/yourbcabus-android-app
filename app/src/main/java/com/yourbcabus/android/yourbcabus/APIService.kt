@@ -13,11 +13,6 @@ typealias FetchErrorHandler = (FetchError) -> Unit
 
 private typealias FetchResourceHandler<Resource> = (Resource) -> Unit
 
-private class StopManager {
-    var list = listOf<Stop>()
-    var map = mapOf<String, Int>()
-}
-
 abstract class APIService(val url: URL, val schoolId: String): EventEmitter {
     @Deprecated("Use APIService.BUSES_CHANGED_EVENT instead.") val BUSES_CHANGED_EVENT get() = APIService.BUSES_CHANGED_EVENT
 
@@ -95,6 +90,14 @@ abstract class APIService(val url: URL, val schoolId: String): EventEmitter {
         reloadBus(bus)
     }
 
+    fun reloadStops(bus: String) {
+        fetchResourceArray<Stop>("/schools/$schoolId/buses/$bus/stops", {
+            stops[bus] = StopManager(it)
+            emit(STOPS_CHANGED_EVENT_FOR(bus), null)
+            emit(STOPS_CHANGED_EVENT, bus)
+        }, {})
+    }
+
     val buses get() = busList
 
     fun getBus(_id: String): Bus? {
@@ -107,6 +110,15 @@ abstract class APIService(val url: URL, val schoolId: String): EventEmitter {
 
     fun getStop(bus: String, stop: String): Stop? {
         return stops[bus]?.map?.get(stop)?.let { stops[bus]!!.list[it] }
+    }
+
+    protected class StopManager(list: List<Stop> = listOf()) {
+        var list: List<Stop> = list
+        var map: Map<String, Int> = HashMap<String, Int>().apply {
+            list.forEachIndexed { index, bus ->
+                set(bus._id, index)
+            }
+        }
     }
 
     companion object {
