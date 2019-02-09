@@ -14,6 +14,7 @@ import kotlinx.android.synthetic.main.activity_bus_list.*
 import kotlinx.android.synthetic.main.bus_list_content.view.*
 import kotlinx.android.synthetic.main.bus_list.*
 import android.support.v4.widget.SwipeRefreshLayout
+import android.widget.RelativeLayout
 
 
 /**
@@ -60,7 +61,7 @@ class BusListActivity : AppCompatActivity() {
         AndroidAPIService.standard.on(AndroidAPIService.standard.BUSES_CHANGED_EVENT, busObserver)
         AndroidAPIService.standard.reloadBuses(schoolId)
 
-        swipeRefreshLayout = findViewById<SwipeRefreshLayout>(R.id.swiperefresh)
+        swipeRefreshLayout = findViewById(R.id.swiperefresh)
 
         swipeRefreshLayout?.setOnRefreshListener(
                 SwipeRefreshLayout.OnRefreshListener {
@@ -74,18 +75,28 @@ class BusListActivity : AppCompatActivity() {
         recyclerView.adapter = SimpleBusRecyclerViewAdapter(this, AndroidAPIService.standard, twoPane)
     }
 
-    class SimpleBusRecyclerViewAdapter(private val parentActivity: BusListActivity, private val api: APIService, private val twoPane: Boolean) : RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder>() {
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SimpleItemRecyclerViewAdapter.ViewHolder {
+    inner class SimpleBusRecyclerViewAdapter(private val parentActivity: BusListActivity, private val api: APIService, private val twoPane: Boolean) : RecyclerView.Adapter<SimpleBusRecyclerViewAdapter.ViewHolder>() {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
             val view = LayoutInflater.from(parent.context)
                     .inflate(R.layout.bus_list_content, parent, false)
-            return SimpleItemRecyclerViewAdapter.ViewHolder(view)
+            return ViewHolder(view)
         }
 
-        override fun onBindViewHolder(holder: SimpleItemRecyclerViewAdapter.ViewHolder, position: Int) {
+        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val item = api.buses.sortedBy { it.name }[position]
             holder.busNameView.text = item.name
-            holder.busLocationView.text = item.locations?.firstOrNull()?.substring(0, 2)
-            holder.busLocationView.text = if (holder.busLocationView.text != "") holder.busLocationView.text else "NA"
+
+            val parent = holder.busLocationView.parent as RelativeLayout
+
+            if (item.locations?.isEmpty() == true) {
+                holder.busLocationView.text = "?"
+                parent.background = resources.getDrawable(R.drawable.bg_list_item)
+                holder.busLocationView.setTextColor(resources.getColor(R.color.colorPrimary))
+            } else {
+                holder.busLocationView.text = item.locations!!.first().substring(0, 2)
+                parent.background = resources.getDrawable(R.drawable.bg_list_item_arrived)
+                holder.busLocationView.setTextColor(resources.getColor(R.color.white))
+            }
 
             with(holder.itemView) {
                 tag = item
@@ -95,60 +106,6 @@ class BusListActivity : AppCompatActivity() {
         override fun getItemCount() = api.buses.size
 
         inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-            val busNameView: TextView = view.bus_name
-            val busLocationView: TextView = view.bus_location
-        }
-    }
-
-    class SimpleItemRecyclerViewAdapter(private val parentActivity: BusListActivity,
-                                        private val values: List<DummyContent.DummyItem>,
-                                        private val twoPane: Boolean) :
-            RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder>() {
-
-        private val onClickListener: View.OnClickListener
-
-        init {
-            onClickListener = View.OnClickListener { v ->
-                val item = v.tag as DummyContent.DummyItem
-                if (twoPane) {
-                    val fragment = BusDetailFragment().apply {
-                        arguments = Bundle().apply {
-                            putString(BusDetailFragment.ARG_ITEM_ID, item.id)
-                        }
-                    }
-                    parentActivity.supportFragmentManager
-                            .beginTransaction()
-                            .replace(R.id.bus_detail_container, fragment)
-                            .commit()
-                } else {
-                    val intent = Intent(v.context, BusDetailActivity::class.java).apply {
-                        putExtra(BusDetailFragment.ARG_ITEM_ID, item.id)
-                    }
-                    v.context.startActivity(intent)
-                }
-            }
-        }
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-            val view = LayoutInflater.from(parent.context)
-                    .inflate(R.layout.bus_list_content, parent, false)
-            return ViewHolder(view)
-        }
-
-        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-            val item = values[position]
-            holder.busNameView.text = item.content
-            holder.busLocationView.text = item.content
-
-            with(holder.itemView) {
-                tag = item
-                setOnClickListener(onClickListener)
-            }
-        }
-
-        override fun getItemCount() = values.size
-
-        class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             val busNameView: TextView = view.bus_name
             val busLocationView: TextView = view.bus_location
         }

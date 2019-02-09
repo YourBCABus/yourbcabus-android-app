@@ -2,4 +2,5 @@
     <string name="app_name">YourBCABus</string>
     <string name="title_bus_detail">Bus Detail</string>
     <string name="lorem_ipsum">Lorem Ipsum</string>
+    <string name="preference_file_key">YourBCABusSettings</string>
 </resources>
