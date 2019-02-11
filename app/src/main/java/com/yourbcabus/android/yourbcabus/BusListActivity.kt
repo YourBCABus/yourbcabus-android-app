@@ -41,7 +41,11 @@ class BusListActivity : AppCompatActivity() {
     private var twoPane: Boolean = false
 
     private val busObserver: Observer = {
-        bus_list.adapter?.notifyDataSetChanged()
+        val adapter = bus_list.adapter as? SimpleBusRecyclerViewAdapter
+        if (adapter != null) {
+            adapter.buses = apiService.buses.sortedBy { it.name }
+            adapter.notifyDataSetChanged()
+        }
     }
 
     private var swipeRefreshLayout: SwipeRefreshLayout? = null
@@ -79,10 +83,13 @@ class BusListActivity : AppCompatActivity() {
     }
 
     private fun setupRecyclerView(recyclerView: RecyclerView) {
-        recyclerView.adapter = SimpleBusRecyclerViewAdapter(this, AndroidAPIService.standard, twoPane)
+        recyclerView.adapter = SimpleBusRecyclerViewAdapter(this, twoPane)
     }
 
-    inner class SimpleBusRecyclerViewAdapter(private val parentActivity: BusListActivity, private val api: APIService, private val twoPane: Boolean) : RecyclerView.Adapter<SimpleBusRecyclerViewAdapter.ViewHolder>() {
+    inner class SimpleBusRecyclerViewAdapter(private val parentActivity: BusListActivity, private val twoPane: Boolean) : RecyclerView.Adapter<SimpleBusRecyclerViewAdapter.ViewHolder>() {
+        var buses = listOf<Bus>()
+        private val saved get() = buses.filter { savedBuses.contains(it._id) }
+
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
             val view = LayoutInflater.from(parent.context)
                     .inflate(R.layout.bus_list_content, parent, false)
@@ -106,7 +113,7 @@ class BusListActivity : AppCompatActivity() {
         }
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-            val item = api.buses.sortedBy { it.name }[position]
+            val item = if (position >= saved.size) buses[position - saved.size] else saved[position]
             holder.busNameView.text = item.name
 
             val parent = holder.busLocationView.parent as RelativeLayout
@@ -128,7 +135,7 @@ class BusListActivity : AppCompatActivity() {
             }
         }
 
-        override fun getItemCount() = api.buses.size
+        override fun getItemCount() = saved.size + buses.size
 
         inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             val busNameView: TextView = view.bus_name
