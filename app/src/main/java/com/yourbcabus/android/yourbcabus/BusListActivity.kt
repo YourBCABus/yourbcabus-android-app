@@ -1,7 +1,8 @@
 package com.yourbcabus.android.yourbcabus
 
-import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
+import android.preference.PreferenceManager
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -9,11 +10,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 
-import com.yourbcabus.android.yourbcabus.dummy.DummyContent
 import kotlinx.android.synthetic.main.activity_bus_list.*
 import kotlinx.android.synthetic.main.bus_list_content.view.*
 import kotlinx.android.synthetic.main.bus_list.*
 import android.support.v4.widget.SwipeRefreshLayout
+import android.widget.CheckBox
 import android.widget.RelativeLayout
 
 
@@ -28,6 +29,10 @@ import android.widget.RelativeLayout
 class BusListActivity : AppCompatActivity() {
 
     val schoolId = "5bca51e785aa2627e14db459"
+    val apiService: APIService = AndroidAPIService.standardForSchool(schoolId)
+
+    private var preferences: SharedPreferences? = null
+    private val savedBuses get() = preferences?.getStringSet(SAVED_BUSES_PREFERENCE_NAME, null) ?: setOf()
 
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
@@ -69,6 +74,8 @@ class BusListActivity : AppCompatActivity() {
                     swipeRefreshLayout?.isRefreshing = false
                 }
         )
+
+        preferences = PreferenceManager.getDefaultSharedPreferences(this)
     }
 
     private fun setupRecyclerView(recyclerView: RecyclerView) {
@@ -79,7 +86,23 @@ class BusListActivity : AppCompatActivity() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
             val view = LayoutInflater.from(parent.context)
                     .inflate(R.layout.bus_list_content, parent, false)
-            return ViewHolder(view)
+
+            val holder = ViewHolder(view)
+
+            holder.savedCheckbox.setOnClickListener {
+                val id = holder.bus?._id
+                if (id != null) {
+                    val editor = preferences?.edit()
+                    if (editor != null) {
+                        editor.putStringSet(SAVED_BUSES_PREFERENCE_NAME, savedBuses.toMutableSet().apply {
+                            if (holder.savedCheckbox.isChecked) add(id) else remove(id)
+                        })
+                        editor.apply()
+                    }
+                }
+            }
+
+            return holder
         }
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -98,6 +121,8 @@ class BusListActivity : AppCompatActivity() {
                 holder.busLocationView.setTextColor(resources.getColor(R.color.white))
             }
 
+            holder.savedCheckbox.isChecked = savedBuses.contains(item._id)
+
             with(holder.itemView) {
                 tag = item
             }
@@ -108,6 +133,9 @@ class BusListActivity : AppCompatActivity() {
         inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             val busNameView: TextView = view.bus_name
             val busLocationView: TextView = view.bus_location
+            val savedCheckbox: CheckBox = view.bus_saved
+
+            val bus get() = itemView.tag as? Bus
         }
     }
 

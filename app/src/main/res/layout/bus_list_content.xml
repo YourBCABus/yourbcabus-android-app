@@ -49,10 +49,10 @@
 
     <CheckBox
         android:id="@+id/bus_saved"
-        android:button="@drawable/star_checkbox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_marginEnd="-8dp"
-        android:layout_toStartOf="@+id/bus_location_layout" />
+        android:layout_toStartOf="@+id/bus_location_layout"
+        android:button="@drawable/star_checkbox" />
 </RelativeLayout>
