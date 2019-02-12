@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.yourbcabus.android.yourbcabus">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ybba_launcher"
@@ -28,8 +30,8 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.yourbcabus.android.yourbcabus.BusListActivity" />
         </activity>
+        <meta-data android:name="firebase_analytics_collection_deactivated" android:value="true" />
+        <meta-data android:name="google_analytics_adid_collection_enabled" android:value="false" />
     </application>
-    
-    <uses-permission android:name="android.permission.INTERNET" />
 
 </manifest>
