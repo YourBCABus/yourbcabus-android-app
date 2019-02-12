@@ -3,4 +3,18 @@
     <string name="title_bus_detail">Bus Detail</string>
     <string name="lorem_ipsum">Lorem Ipsum</string>
     <string name="preference_file_key">YourBCABusSettings</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Strings related to Settings -->
+
+    <!-- Settings for Notifications -->
+    <string name="pref_header_notifications">Notifications</string>
+
+    <string name="pref_title_notifications_bus_arrival">Bus arrival notifications</string>
+    <string name="pref_description_notifications_bus_arrival">Get notified when a starred bus arrives.</string>
+
+    <string name="pref_title_ringtone">Ringtone</string>
+    <string name="pref_ringtone_silent">Silent</string>
+
+    <string name="pref_title_vibrate">Vibrate</string>
 </resources>

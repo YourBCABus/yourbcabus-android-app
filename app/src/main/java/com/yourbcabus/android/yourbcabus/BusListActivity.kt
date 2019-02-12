@@ -1,19 +1,18 @@
 package com.yourbcabus.android.yourbcabus
 
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.RecyclerView
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.TextView
 
 import kotlinx.android.synthetic.main.activity_bus_list.*
 import kotlinx.android.synthetic.main.bus_list_content.view.*
 import kotlinx.android.synthetic.main.bus_list.*
 import android.support.v4.widget.SwipeRefreshLayout
+import android.view.*
 import android.widget.CheckBox
 import android.widget.RelativeLayout
 import java.util.*
@@ -84,6 +83,19 @@ class BusListActivity : AppCompatActivity() {
         )
 
         preferences = PreferenceManager.getDefaultSharedPreferences(this)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.main, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        if (item?.itemId == R.id.action_settings) {
+            startActivity(Intent(this, SettingsActivity::class.java))
+        }
+
+        return super.onOptionsItemSelected(item)
     }
 
     private fun setupRecyclerView(recyclerView: RecyclerView) {
