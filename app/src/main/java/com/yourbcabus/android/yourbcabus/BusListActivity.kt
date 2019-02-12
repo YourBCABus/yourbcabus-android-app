@@ -15,6 +15,7 @@ import android.support.v4.widget.SwipeRefreshLayout
 import android.view.*
 import android.widget.CheckBox
 import android.widget.RelativeLayout
+import com.google.firebase.messaging.FirebaseMessaging
 import java.util.*
 
 
@@ -117,11 +118,19 @@ class BusListActivity : AppCompatActivity() {
                 if (id != null) {
                     val editor = preferences?.edit()
                     if (editor != null) {
+                        val notificationsEnabled = preferences?.getBoolean(NOTIFICATIONS_BUS_ARRIVAL_PREFERENCE_NAME, false) == true
+
                         editor.putStringSet(SAVED_BUSES_PREFERENCE_NAME, savedBuses.toMutableSet().apply {
                             if (holder.savedCheckbox.isChecked) {
                                 add(id)
+                                if (notificationsEnabled) {
+                                    FirebaseMessaging.getInstance().subscribeToTopic("school.$schoolId.bus.$id")
+                                }
                             } else {
                                 remove(id)
+                                if (notificationsEnabled) {
+                                    FirebaseMessaging.getInstance().unsubscribeFromTopic("school.$schoolId.bus.$id")
+                                }
                             }
                         })
                         editor.apply()
