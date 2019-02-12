@@ -133,10 +133,12 @@ class BusListActivity : AppCompatActivity() {
                 holder.busLocationView.text = "?"
                 parent.background = resources.getDrawable(R.drawable.bg_list_item)
                 holder.busLocationView.setTextColor(resources.getColor(R.color.colorPrimary))
+                holder.busDetailView.text = if (item.available) "Not at BCA" else "Not running"
             } else {
                 holder.busLocationView.text = location
                 parent.background = resources.getDrawable(R.drawable.bg_list_item_arrived)
                 holder.busLocationView.setTextColor(resources.getColor(R.color.white))
+                holder.busDetailView.text = "Arrived at BCA"
             }
 
             holder.savedCheckbox.isChecked = savedBuses.contains(item._id)
@@ -153,6 +155,7 @@ class BusListActivity : AppCompatActivity() {
         inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             val busNameView: TextView = view.bus_name
             val busLocationView: TextView = view.bus_location
+            val busDetailView: TextView = view.bus_details
             val savedCheckbox: CheckBox = view.bus_saved
             val divider: View = view.divider
 
