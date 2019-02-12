@@ -102,9 +102,14 @@ class BusListActivity : AppCompatActivity() {
                     val editor = preferences?.edit()
                     if (editor != null) {
                         editor.putStringSet(SAVED_BUSES_PREFERENCE_NAME, savedBuses.toMutableSet().apply {
-                            if (holder.savedCheckbox.isChecked) add(id) else remove(id)
+                            if (holder.savedCheckbox.isChecked) {
+                                add(id)
+                            } else {
+                                remove(id)
+                            }
                         })
                         editor.apply()
+                        notifyDataSetChanged()
                     }
                 }
             }
@@ -133,6 +138,8 @@ class BusListActivity : AppCompatActivity() {
             with(holder.itemView) {
                 tag = item
             }
+
+            holder.divider.visibility = if (position == saved.size) View.VISIBLE else View.INVISIBLE
         }
 
         override fun getItemCount() = saved.size + buses.size
@@ -141,6 +148,7 @@ class BusListActivity : AppCompatActivity() {
             val busNameView: TextView = view.bus_name
             val busLocationView: TextView = view.bus_location
             val savedCheckbox: CheckBox = view.bus_saved
+            val divider: View = view.divider
 
             val bus get() = itemView.tag as? Bus
         }

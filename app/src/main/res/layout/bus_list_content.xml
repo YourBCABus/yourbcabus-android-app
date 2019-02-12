@@ -24,6 +24,7 @@
             android:text="@string/lorem_ipsum"
             android:textAppearance="?attr/textAppearanceListItemSecondary"
             android:textColor="@color/textSecondary" />
+
     </LinearLayout>
 
     <RelativeLayout
@@ -55,4 +56,12 @@
         android:layout_marginEnd="-8dp"
         android:layout_toStartOf="@+id/bus_location_layout"
         android:button="@drawable/star_checkbox" />
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_alignParentStart="true"
+        android:background="?android:attr/listDivider" />
+
 </RelativeLayout>
