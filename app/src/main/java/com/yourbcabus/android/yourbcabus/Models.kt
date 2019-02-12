@@ -41,7 +41,15 @@ data class Bus(
         val available: Boolean,
         val locations: Array<String>?,
         @KlaxonDate val invalidate_time: Date?
-)
+) {
+    fun isValidated(asOf: Date): Boolean {
+        return invalidate_time == null || asOf < invalidate_time
+    }
+
+    fun getLocation(asOf: Date? = null): String? {
+        return if (asOf == null || isValidated(asOf)) locations?.firstOrNull() else null
+    }
+}
 
 data class Stop(
         val _id: String,

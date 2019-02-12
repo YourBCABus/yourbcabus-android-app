@@ -16,6 +16,7 @@ import kotlinx.android.synthetic.main.bus_list.*
 import android.support.v4.widget.SwipeRefreshLayout
 import android.widget.CheckBox
 import android.widget.RelativeLayout
+import java.util.*
 
 
 /**
@@ -34,6 +35,8 @@ class BusListActivity : AppCompatActivity() {
     private var preferences: SharedPreferences? = null
     private val savedBuses get() = preferences?.getStringSet(SAVED_BUSES_PREFERENCE_NAME, null) ?: setOf()
 
+    private var date = Date()
+
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
      * device.
@@ -43,6 +46,7 @@ class BusListActivity : AppCompatActivity() {
     private val busObserver: Observer = {
         val adapter = bus_list.adapter as? SimpleBusRecyclerViewAdapter
         if (adapter != null) {
+            date = Date()
             adapter.buses = apiService.buses.sortedBy { it.name }
             adapter.notifyDataSetChanged()
         }
@@ -123,12 +127,14 @@ class BusListActivity : AppCompatActivity() {
 
             val parent = holder.busLocationView.parent as RelativeLayout
 
-            if (item.locations?.isEmpty() == true) {
+            val location = item.getLocation(date)
+
+            if (location == null) {
                 holder.busLocationView.text = "?"
                 parent.background = resources.getDrawable(R.drawable.bg_list_item)
                 holder.busLocationView.setTextColor(resources.getColor(R.color.colorPrimary))
             } else {
-                holder.busLocationView.text = item.locations!!.first().substring(0, 2)
+                holder.busLocationView.text = location
                 parent.background = resources.getDrawable(R.drawable.bg_list_item_arrived)
                 holder.busLocationView.setTextColor(resources.getColor(R.color.white))
             }
