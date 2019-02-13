@@ -145,7 +145,7 @@ class BusListActivity : AppCompatActivity() {
                     if (!didAskUser) {
                         val editor = preferences?.edit()
                         if (editor != null) {
-                            val builder = AlertDialog.Builder(this.parentActivity)
+                            val builder = AlertDialog.Builder(this.parentActivity, R.style.AlertDialogTheme)
                             val dialogClickListener = DialogInterface.OnClickListener() { _, which: Int ->
                                 when (which) {
                                     Dialog.BUTTON_POSITIVE -> {
