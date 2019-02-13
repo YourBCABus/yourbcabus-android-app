@@ -17,6 +17,10 @@ import android.widget.CheckBox
 import android.widget.RelativeLayout
 import com.google.firebase.messaging.FirebaseMessaging
 import java.util.*
+import android.content.DialogInterface
+import android.R.id.message
+import android.app.Dialog
+import android.support.v7.app.AlertDialog
 
 
 /**
@@ -33,7 +37,8 @@ class BusListActivity : AppCompatActivity() {
     val apiService: APIService = AndroidAPIService.standardForSchool(schoolId)
 
     private var preferences: SharedPreferences? = null
-    private val savedBuses get() = preferences?.getStringSet(SAVED_BUSES_PREFERENCE_NAME, null) ?: setOf()
+    private val savedBuses
+        get() = preferences?.getStringSet(SAVED_BUSES_PREFERENCE_NAME, null) ?: setOf()
 
     private var date = Date()
 
@@ -117,9 +122,8 @@ class BusListActivity : AppCompatActivity() {
                 val id = holder.bus?._id
                 if (id != null) {
                     val editor = preferences?.edit()
+                    val notificationsEnabled = preferences?.getBoolean(NOTIFICATIONS_BUS_ARRIVAL_PREFERENCE_NAME, false) == true
                     if (editor != null) {
-                        val notificationsEnabled = preferences?.getBoolean(NOTIFICATIONS_BUS_ARRIVAL_PREFERENCE_NAME, false) == true
-
                         editor.putStringSet(SAVED_BUSES_PREFERENCE_NAME, savedBuses.toMutableSet().apply {
                             if (holder.savedCheckbox.isChecked) {
                                 add(id)
@@ -135,6 +139,38 @@ class BusListActivity : AppCompatActivity() {
                         })
                         editor.apply()
                         notifyDataSetChanged()
+                    }
+
+                    val didAskUser = preferences?.getBoolean(DID_ASK_TO_ENABLE_NOTIFICATIONS_PREFERENCE_NAME, false) == true
+                    if (!didAskUser) {
+                        val editor = preferences?.edit()
+                        if (editor != null) {
+                            val builder = AlertDialog.Builder(this.parentActivity)
+                            val dialogClickListener = DialogInterface.OnClickListener() { _, which: Int ->
+                                when (which) {
+                                    Dialog.BUTTON_POSITIVE -> {
+                                        editor.putBoolean(NOTIFICATIONS_BUS_ARRIVAL_PREFERENCE_NAME, true)
+                                        if (holder.savedCheckbox.isChecked) {
+                                            FirebaseMessaging.getInstance().subscribeToTopic("school.$schoolId.bus.$id")
+                                        } else {
+                                            FirebaseMessaging.getInstance().unsubscribeFromTopic("school.$schoolId.bus.$id")
+                                        }
+                                        editor.apply()
+                                    }
+                                    Dialog.BUTTON_NEGATIVE -> {editor.putBoolean(NOTIFICATIONS_BUS_ARRIVAL_PREFERENCE_NAME, false)
+                                    editor.apply()}
+                                }
+                            }
+
+                            builder.setTitle("Enable Notifications")
+                            builder.setMessage("Allow YourBCABus to send you notifications? You can always change this later in settings.")
+                            builder.setPositiveButton("YES", dialogClickListener)
+                            builder.setNegativeButton("NO", dialogClickListener)
+
+                            val alertDialog = builder.create()
+                            alertDialog.show()
+                            editor.putBoolean(DID_ASK_TO_ENABLE_NOTIFICATIONS_PREFERENCE_NAME, true)
+                        }
                     }
                 }
             }
