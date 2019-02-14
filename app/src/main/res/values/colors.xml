@@ -8,5 +8,5 @@
     <color name="textSecondary">#8E8E93</color>
     <color name="white">#FFFFFF</color>
     <color name="colorRed">#FF4136</color>
-    <color name="navigateionBarDefaultColor">#EBEBEB</color>
+    <color name="navigationBarDefaultColor">#EBEBEB</color>
 </resources>

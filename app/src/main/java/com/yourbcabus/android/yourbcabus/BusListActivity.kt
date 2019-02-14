@@ -14,8 +14,6 @@ import android.support.v4.widget.SwipeRefreshLayout
 import android.view.*
 import com.google.firebase.messaging.FirebaseMessaging
 import java.util.*
-import android.content.DialogInterface
-import android.app.Dialog
 import android.support.v7.app.AlertDialog
 import android.view.LayoutInflater
 import android.widget.*
@@ -89,7 +87,7 @@ class BusListActivity : AppCompatActivity() {
 
         preferences = PreferenceManager.getDefaultSharedPreferences(this)
 
-        window.navigationBarColor = resources.getColor(R.color.navigateionBarDefaultColor)
+        window.navigationBarColor = resources.getColor(R.color.navigationBarDefaultColor)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -171,7 +169,7 @@ class BusListActivity : AppCompatActivity() {
                                         FirebaseMessaging.getInstance().unsubscribeFromTopic("school.$schoolId.bus.$id")
                                     }
                                     alertDialog.dismiss()
-                                    window.navigationBarColor = resources.getColor(R.color.navigateionBarDefaultColor)
+                                    window.navigationBarColor = resources.getColor(R.color.navigationBarDefaultColor)
                                     window.statusBarColor = resources.getColor(R.color.colorPrimaryDark)
                                 } catch (ex: Exception) {
                                     ex.printStackTrace()
@@ -184,7 +182,7 @@ class BusListActivity : AppCompatActivity() {
                                     editor.putBoolean(NOTIFICATIONS_BUS_ARRIVAL_PREFERENCE_NAME, false)
                                     editor.apply()
                                     alertDialog.dismiss()
-                                    window.navigationBarColor = resources.getColor(R.color.navigateionBarDefaultColor)
+                                    window.navigationBarColor = resources.getColor(R.color.navigationBarDefaultColor)
                                     window.statusBarColor = resources.getColor(R.color.colorPrimaryDark)
                                 } catch (ex: Exception) {
                                     ex.printStackTrace()
