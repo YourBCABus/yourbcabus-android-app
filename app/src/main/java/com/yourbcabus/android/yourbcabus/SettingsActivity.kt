@@ -64,6 +64,7 @@ class SettingsActivity : AppCompatPreferenceActivity() {
     override fun isValidFragment(fragmentName: String): Boolean {
         return PreferenceFragment::class.java.name == fragmentName
                 || NotificationPreferenceFragment::class.java.name == fragmentName
+                || AboutFragment::class.java.name == fragmentName
     }
 
     /**
@@ -104,6 +105,40 @@ class SettingsActivity : AppCompatPreferenceActivity() {
 
                 true
             }
+        }
+
+        override fun onOptionsItemSelected(item: MenuItem): Boolean {
+            val id = item.itemId
+            if (id == android.R.id.home) {
+                startActivity(Intent(activity, SettingsActivity::class.java))
+                return true
+            }
+            return super.onOptionsItemSelected(item)
+        }
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    class AboutFragment : PreferenceFragment() {
+        override fun onCreate(savedInstanceState: Bundle?) {
+            super.onCreate(savedInstanceState)
+            addPreferencesFromResource(R.xml.pref_about)
+            setHasOptionsMenu(true)
+
+            // Bind the summaries of EditText/List/Dialog/Ringtone preferences
+            // to their values. When their values change, their summaries are
+            // updated to reflect the new value, per the Android Design
+            // guidelines.
+            // bindPreferenceSummaryToValue(findPreference("notifications_bus_arrival_ringtone"))
+            findPreference("privacy_policy").onPreferenceClickListener = object : Preference.OnPreferenceClickListener {
+                override fun onPreferenceClick(preference: Preference?): Boolean {
+                    val i = Intent(Intent.ACTION_VIEW)
+                    i.data = Uri.parse("https://support.yourbcabus.com/privacy-policy")
+                    startActivity(i)
+                    return true
+                }
+            }
+
+            findPreference("app_version").summary = BuildConfig.VERSION_NAME
         }
 
         override fun onOptionsItemSelected(item: MenuItem): Boolean {
