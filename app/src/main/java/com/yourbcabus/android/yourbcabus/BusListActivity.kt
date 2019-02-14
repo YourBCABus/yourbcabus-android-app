@@ -6,21 +6,19 @@ import android.os.Bundle
 import android.preference.PreferenceManager
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.RecyclerView
-import android.widget.TextView
 
 import kotlinx.android.synthetic.main.activity_bus_list.*
 import kotlinx.android.synthetic.main.bus_list_content.view.*
 import kotlinx.android.synthetic.main.bus_list.*
 import android.support.v4.widget.SwipeRefreshLayout
 import android.view.*
-import android.widget.CheckBox
-import android.widget.RelativeLayout
 import com.google.firebase.messaging.FirebaseMessaging
 import java.util.*
 import android.content.DialogInterface
-import android.R.id.message
 import android.app.Dialog
 import android.support.v7.app.AlertDialog
+import android.view.LayoutInflater
+import android.widget.*
 
 
 /**
@@ -89,6 +87,8 @@ class BusListActivity : AppCompatActivity() {
         )
 
         preferences = PreferenceManager.getDefaultSharedPreferences(this)
+
+        window.navigationBarColor = resources.getColor(R.color.navigateionBarDefaultColor)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -145,31 +145,50 @@ class BusListActivity : AppCompatActivity() {
                     if (!didAskUser) {
                         val editor = preferences?.edit()
                         if (editor != null) {
+                            val inflater = LayoutInflater.from(applicationContext).inflate(R.layout.alertdialog, null)
                             val builder = AlertDialog.Builder(this.parentActivity, R.style.AlertDialogTheme)
-                            val dialogClickListener = DialogInterface.OnClickListener() { _, which: Int ->
-                                when (which) {
-                                    Dialog.BUTTON_POSITIVE -> {
-                                        editor.putBoolean(NOTIFICATIONS_BUS_ARRIVAL_PREFERENCE_NAME, true)
-                                        if (holder.savedCheckbox.isChecked) {
-                                            FirebaseMessaging.getInstance().subscribeToTopic("school.$schoolId.bus.$id")
-                                        } else {
-                                            FirebaseMessaging.getInstance().unsubscribeFromTopic("school.$schoolId.bus.$id")
-                                        }
-                                        editor.apply()
+
+                            builder.setView(inflater)
+                            builder.setCancelable(false)
+                            val alertDialog = builder.create()
+                            alertDialog.show()
+                            val height = resources.displayMetrics.heightPixels
+                            val width = resources.displayMetrics.widthPixels
+                            alertDialog?.window?.setLayout(width, height)
+                            window.navigationBarColor = resources.getColor(R.color.colorPrimaryLight)
+                            window.statusBarColor = resources.getColor(R.color.colorPrimaryLight)
+                            editor.putBoolean(DID_ASK_TO_ENABLE_NOTIFICATIONS_PREFERENCE_NAME, true)
+
+                            val positiveButton = inflater.findViewById(R.id.alertDesignPositive) as Button
+                            positiveButton.setOnClickListener {
+                                try {
+                                    editor.putBoolean(NOTIFICATIONS_BUS_ARRIVAL_PREFERENCE_NAME, true)
+                                    editor.apply()
+                                    if (holder.savedCheckbox.isChecked) {
+                                        FirebaseMessaging.getInstance().subscribeToTopic("school.$schoolId.bus.$id")
+                                    } else {
+                                        FirebaseMessaging.getInstance().unsubscribeFromTopic("school.$schoolId.bus.$id")
                                     }
-                                    Dialog.BUTTON_NEGATIVE -> {editor.putBoolean(NOTIFICATIONS_BUS_ARRIVAL_PREFERENCE_NAME, false)
-                                    editor.apply()}
+                                    alertDialog.dismiss()
+                                    window.navigationBarColor = resources.getColor(R.color.navigateionBarDefaultColor)
+                                    window.statusBarColor = resources.getColor(R.color.colorPrimaryDark)
+                                } catch (ex: Exception) {
+                                    ex.printStackTrace()
                                 }
                             }
 
-                            builder.setTitle("Enable Notifications")
-                            builder.setMessage("Allow YourBCABus to send you notifications? You can always change this later in settings.")
-                            builder.setPositiveButton("YES", dialogClickListener)
-                            builder.setNegativeButton("NO", dialogClickListener)
-
-                            val alertDialog = builder.create()
-                            alertDialog.show()
-                            editor.putBoolean(DID_ASK_TO_ENABLE_NOTIFICATIONS_PREFERENCE_NAME, true)
+                            val negativeButton = inflater.findViewById(R.id.alertDesignNegative) as Button
+                            negativeButton.setOnClickListener {
+                                try {
+                                    editor.putBoolean(NOTIFICATIONS_BUS_ARRIVAL_PREFERENCE_NAME, false)
+                                    editor.apply()
+                                    alertDialog.dismiss()
+                                    window.navigationBarColor = resources.getColor(R.color.navigateionBarDefaultColor)
+                                    window.statusBarColor = resources.getColor(R.color.colorPrimaryDark)
+                                } catch (ex: Exception) {
+                                    ex.printStackTrace()
+                                }
+                            }
                         }
                     }
                 }

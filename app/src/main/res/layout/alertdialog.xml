@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/alertDialog"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_alertdialog"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/alertDialogHeader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="32dp"
+        android:text="End the Guessing Game"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textColor="@color/white"
+        android:textSize="32sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/alertDialogBody"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/alertDialogHeader"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="@dimen/text_margin"
+        android:text="Get notified when a starred bus arrives."
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textColor="@color/white"
+        android:textSize="20sp" />
+
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/alertDesignPositive"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/alertDesignNegative"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/bg_alertdialogpositivebutton"
+        android:paddingLeft="24dp"
+        android:paddingTop="18dp"
+        android:paddingRight="24dp"
+        android:paddingBottom="18dp"
+        android:text="Enable Notifications"
+        android:textColor="@color/colorPrimaryDark"
+        android:textSize="22sp" />
+
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/alertDesignNegative"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="8dp"
+        android:background="@android:color/transparent"
+        android:paddingBottom="@dimen/text_margin"
+        android:text="Don't Enable"
+        android:textColor="@color/white"
+        android:textSize="18sp" />
+</RelativeLayout>
