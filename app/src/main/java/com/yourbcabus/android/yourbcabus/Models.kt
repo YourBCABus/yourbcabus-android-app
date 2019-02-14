@@ -9,7 +9,7 @@ import java.util.*
 @Target(AnnotationTarget.FIELD)
 annotation class KlaxonDate {
     companion object: Converter {
-        private val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX")
+        private val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
 
         override fun canConvert(cls: Class<*>): Boolean = cls == Date::class.java
 
