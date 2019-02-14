@@ -49,6 +49,7 @@ class BusListActivity : AppCompatActivity() {
     private val busObserver: Observer = {
         val adapter = bus_list.adapter as? SimpleBusRecyclerViewAdapter
         if (adapter != null) {
+            loadingPanel.visibility = View.GONE
             date = Date()
             adapter.buses = apiService.buses.sortedBy { it.name }
             adapter.notifyDataSetChanged()
