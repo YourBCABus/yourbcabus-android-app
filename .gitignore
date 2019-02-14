@@ -68,3 +68,6 @@ fastlane/readme.md
 
 # .idea
 .idea/
+
+# Compiled files
+app/release/
