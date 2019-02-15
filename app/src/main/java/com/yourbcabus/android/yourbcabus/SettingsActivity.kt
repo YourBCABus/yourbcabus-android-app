@@ -137,6 +137,7 @@ class SettingsActivity : AppCompatPreferenceActivity() {
                     return true
                 }
             }
+            findPreference("privacy_policy").widgetLayoutResource = R.layout.pref_icon_link
 
             findPreference("app_version").summary = BuildConfig.VERSION_NAME
         }
