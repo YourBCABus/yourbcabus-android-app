@@ -93,6 +93,7 @@ class BusListActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        timer = Timer()
         timer.scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
                 AndroidAPIService.standardForSchool(schoolId).reloadBuses()
