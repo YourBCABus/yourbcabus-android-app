@@ -37,6 +37,7 @@ class BusListActivity : AppCompatActivity() {
         get() = preferences?.getStringSet(SAVED_BUSES_PREFERENCE_NAME, null) ?: setOf()
 
     private var date = Date()
+    private var timer = Timer()
 
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
@@ -74,20 +75,34 @@ class BusListActivity : AppCompatActivity() {
         setupRecyclerView(bus_list)
 
         AndroidAPIService.standard.on(AndroidAPIService.standard.BUSES_CHANGED_EVENT, busObserver)
-        AndroidAPIService.standard.reloadBuses(schoolId)
 
         swipeRefreshLayout = findViewById(R.id.swiperefresh)
 
         swipeRefreshLayout?.setOnRefreshListener(
                 SwipeRefreshLayout.OnRefreshListener {
-                    AndroidAPIService.standardForSchool(schoolId).reloadBuses {}
-                    swipeRefreshLayout?.isRefreshing = false
+                    AndroidAPIService.standardForSchool(schoolId).reloadBuses {
+                        swipeRefreshLayout?.isRefreshing = false
+                    }
                 }
         )
 
         preferences = PreferenceManager.getDefaultSharedPreferences(this)
 
         window.navigationBarColor = resources.getColor(R.color.navigationBarDefaultColor)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        timer.scheduleAtFixedRate(object : TimerTask() {
+            override fun run() {
+                AndroidAPIService.standardForSchool(schoolId).reloadBuses()
+            }
+        },0,10000)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        timer.cancel()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
