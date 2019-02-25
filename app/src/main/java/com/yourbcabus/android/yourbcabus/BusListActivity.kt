@@ -132,6 +132,26 @@ class BusListActivity : AppCompatActivity() {
 
             val holder = ViewHolder(view)
 
+            holder?.busView?.setOnClickListener { v ->
+                val item = v.tag as Bus
+                if (twoPane) {
+                    val fragment = BusDetailFragment().apply {
+                        arguments = Bundle().apply {
+                            putString(BusDetailFragment.ARG_ITEM_ID, item._id)
+                        }
+                    }
+                    parentActivity.supportFragmentManager
+                            .beginTransaction()
+                            .replace(R.id.bus_detail_container, fragment)
+                            .commit()
+                } else {
+                    val intent = Intent(v.context, BusDetailActivity::class.java).apply {
+                        putExtra(BusDetailFragment.ARG_ITEM_ID, item._id)
+                    }
+                    v.context.startActivity(intent)
+                }
+            }
+
             holder.savedCheckbox.setOnClickListener {
                 val id = holder.bus?._id
                 if (id != null) {
@@ -248,6 +268,7 @@ class BusListActivity : AppCompatActivity() {
             val busDetailView: TextView = view.bus_details
             val savedCheckbox: CheckBox = view.bus_saved
             val divider: View = view.divider
+            val busView: View = view.bus_view
 
             val bus get() = itemView.tag as? Bus
         }
