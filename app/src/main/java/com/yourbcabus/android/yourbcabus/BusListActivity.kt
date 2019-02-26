@@ -138,7 +138,7 @@ class BusListActivity : AppCompatActivity() {
                 if (twoPane) {
                     val fragment = BusDetailFragment().apply {
                         arguments = Bundle().apply {
-                            putString(BusDetailFragment.ARG_ITEM_ID, item._id)
+                            putString(BusDetailFragment.ARG_BUS_ID, item._id)
                         }
                     }
                     parentActivity.supportFragmentManager
@@ -147,7 +147,7 @@ class BusListActivity : AppCompatActivity() {
                             .commit()
                 } else {
                     val intent = Intent(v.context, BusDetailActivity::class.java).apply {
-                        putExtra(BusDetailFragment.ARG_ITEM_ID, item._id)
+                        putExtra(BusDetailFragment.ARG_BUS_ID, item._id)
                     }
                     v.context.startActivity(intent)
                 }

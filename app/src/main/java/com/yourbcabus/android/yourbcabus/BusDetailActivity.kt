@@ -42,8 +42,8 @@ class BusDetailActivity : AppCompatActivity() {
             // using a fragment transaction.
             val fragment = BusDetailFragment().apply {
                 arguments = Bundle().apply {
-                    putString(BusDetailFragment.ARG_ITEM_ID,
-                            intent.getStringExtra(BusDetailFragment.ARG_ITEM_ID))
+                    putString(BusDetailFragment.ARG_BUS_ID,
+                            intent.getStringExtra(BusDetailFragment.ARG_BUS_ID))
                 }
             }
 

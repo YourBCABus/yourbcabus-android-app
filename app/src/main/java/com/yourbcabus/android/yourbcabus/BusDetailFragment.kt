@@ -17,21 +17,19 @@ import kotlinx.android.synthetic.main.bus_detail.view.*
  */
 class BusDetailFragment : Fragment() {
 
-    /**
-     * The dummy content this fragment is presenting.
-     */
-    private var item: DummyContent.DummyItem? = null
+    private var item: Bus? = null
+
+    val schoolId = "5bca51e785aa2627e14db459"
+    val apiService: APIService = AndroidAPIService.standardForSchool(schoolId)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         arguments?.let {
-            if (it.containsKey(ARG_ITEM_ID)) {
-                // Load the dummy content specified by the fragment
-                // arguments. In a real-world scenario, use a Loader
-                // to load content from a content provider.
-                item = DummyContent.ITEM_MAP[it.getString(ARG_ITEM_ID)]
-                activity?.toolbar_layout?.title = item?.content
+            if (it.containsKey(ARG_BUS_ID)) {
+                item = AndroidAPIService.standardForSchool(schoolId).getBus(it.getString(ARG_BUS_ID)?:"")
+                activity?.toolbar_layout?.title = item?.name
+
             }
         }
     }
@@ -41,8 +39,8 @@ class BusDetailFragment : Fragment() {
         val rootView = inflater.inflate(R.layout.bus_detail, container, false)
 
         // Show the dummy content as text in a TextView.
-        item?.let {
-            rootView.bus_detail.text = it.details
+        item.let {
+            rootView.bus_detail.text = item?.name
         }
 
         return rootView
@@ -53,6 +51,6 @@ class BusDetailFragment : Fragment() {
          * The fragment argument representing the item ID that this fragment
          * represents.
          */
-        const val ARG_ITEM_ID = "item_id"
+        const val ARG_BUS_ID = "bus_id"
     }
 }
