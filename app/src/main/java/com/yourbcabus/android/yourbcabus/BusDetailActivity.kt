@@ -22,11 +22,6 @@ class BusDetailActivity : AppCompatActivity() {
         setSupportActionBar(detail_toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false)
 
-        fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own detail action", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
-        }
-
         // Show the Up button in the action bar.
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
