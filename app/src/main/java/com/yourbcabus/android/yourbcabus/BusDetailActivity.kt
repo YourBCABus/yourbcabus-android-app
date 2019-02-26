@@ -6,6 +6,7 @@ import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
 import kotlinx.android.synthetic.main.activity_bus_detail.*
+import kotlinx.android.synthetic.main.activity_bus_list.*
 
 /**
  * An activity representing a single Bus detail screen. This
@@ -19,6 +20,7 @@ class BusDetailActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_bus_detail)
         setSupportActionBar(detail_toolbar)
+        supportActionBar?.setDisplayShowTitleEnabled(false)
 
         fab.setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own detail action", Snackbar.LENGTH_LONG)

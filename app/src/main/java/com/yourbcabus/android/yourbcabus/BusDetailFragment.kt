@@ -1,5 +1,6 @@
 package com.yourbcabus.android.yourbcabus
 
+import android.app.ActionBar
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
@@ -28,7 +29,7 @@ class BusDetailFragment : Fragment() {
         arguments?.let {
             if (it.containsKey(ARG_BUS_ID)) {
                 item = AndroidAPIService.standardForSchool(schoolId).getBus(it.getString(ARG_BUS_ID)?:"")
-                activity?.toolbar_layout?.title = item?.name
+                activity?.toolbar_title?.text = item?.name
 
             }
         }
