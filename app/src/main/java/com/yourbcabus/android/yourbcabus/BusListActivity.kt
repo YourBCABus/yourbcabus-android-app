@@ -48,7 +48,6 @@ class BusListActivity : AppCompatActivity() {
     private val busObserver: Observer = {
         val adapter = bus_list.adapter as? SimpleBusRecyclerViewAdapter
         if (adapter != null) {
-            loadingPanel.visibility = View.GONE
             date = Date()
             adapter.buses = apiService.buses.sortedBy { it.name }
             adapter.notifyDataSetChanged()
@@ -74,7 +73,12 @@ class BusListActivity : AppCompatActivity() {
 
         setupRecyclerView(bus_list)
 
+        noInternet.visibility = View.GONE
+
         AndroidAPIService.standard.on(AndroidAPIService.standard.BUSES_CHANGED_EVENT, busObserver)
+        AndroidAPIService.standardForSchool(schoolId).reloadBuses {
+            loadingPanel.visibility = View.GONE
+        }
 
         swipeRefreshLayout = findViewById(R.id.swiperefresh)
 
@@ -82,6 +86,13 @@ class BusListActivity : AppCompatActivity() {
                 SwipeRefreshLayout.OnRefreshListener {
                     AndroidAPIService.standardForSchool(schoolId).reloadBuses {
                         swipeRefreshLayout?.isRefreshing = false
+                        if (it) {
+                            noInternet.visibility = View.GONE
+                            bus_list.visibility = View.VISIBLE
+                        } else {
+                            noInternet.visibility = View.VISIBLE
+                            bus_list.visibility = View.GONE
+                        }
                     }
                 }
         )
@@ -96,9 +107,17 @@ class BusListActivity : AppCompatActivity() {
         timer = Timer()
         timer.scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
-                AndroidAPIService.standardForSchool(schoolId).reloadBuses()
+                AndroidAPIService.standardForSchool(schoolId).reloadBuses() {
+                    if (it) {
+                        noInternet.visibility = View.GONE
+                        bus_list.visibility = View.VISIBLE
+                    } else {
+                        noInternet.visibility = View.VISIBLE
+                        bus_list.visibility = View.GONE
+                    }
+                }
             }
-        },0,10000)
+        }, 0, 10000)
     }
 
     override fun onPause() {
