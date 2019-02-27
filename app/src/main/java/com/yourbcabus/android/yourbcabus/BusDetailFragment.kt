@@ -34,6 +34,7 @@ class BusDetailFragment : Fragment() {
 
     private val stopObserver: Observer = {
         stops = AndroidAPIService.standardForSchool(schoolId).getStops(argBusId)
+        stops = stops.sortedBy { it.order }
         busDetail.adapter?.notifyDataSetChanged()
     }
 
