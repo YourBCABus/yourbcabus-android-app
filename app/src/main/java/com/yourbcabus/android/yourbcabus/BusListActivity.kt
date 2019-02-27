@@ -76,24 +76,13 @@ class BusListActivity : AppCompatActivity() {
         noInternet.visibility = View.GONE
 
         AndroidAPIService.standard.on(AndroidAPIService.standard.BUSES_CHANGED_EVENT, busObserver)
-        AndroidAPIService.standardForSchool(schoolId).reloadBuses {
-            loadingPanel.visibility = View.GONE
-        }
+        AndroidAPIService.standardForSchool(schoolId).reloadBuses {onReloadBuses(it)}
 
         swipeRefreshLayout = findViewById(R.id.swiperefresh)
 
         swipeRefreshLayout?.setOnRefreshListener(
                 SwipeRefreshLayout.OnRefreshListener {
-                    AndroidAPIService.standardForSchool(schoolId).reloadBuses {
-                        swipeRefreshLayout?.isRefreshing = false
-                        if (it) {
-                            noInternet.visibility = View.GONE
-                            bus_list.visibility = View.VISIBLE
-                        } else {
-                            noInternet.visibility = View.VISIBLE
-                            bus_list.visibility = View.GONE
-                        }
-                    }
+                    AndroidAPIService.standardForSchool(schoolId).reloadBuses {onReloadBuses(it)}
                 }
         )
 
@@ -107,15 +96,7 @@ class BusListActivity : AppCompatActivity() {
         timer = Timer()
         timer.scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
-                AndroidAPIService.standardForSchool(schoolId).reloadBuses() {
-                    if (it) {
-                        noInternet.visibility = View.GONE
-                        bus_list.visibility = View.VISIBLE
-                    } else {
-                        noInternet.visibility = View.VISIBLE
-                        bus_list.visibility = View.GONE
-                    }
-                }
+                AndroidAPIService.standardForSchool(schoolId).reloadBuses {onReloadBuses(it)}
             }
         }, 0, 10000)
     }
@@ -131,8 +112,9 @@ class BusListActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        if (item?.itemId == R.id.action_settings) {
-            startActivity(Intent(this, SettingsActivity::class.java))
+        when (item?.itemId) {
+            R.id.action_settings -> startActivity(Intent(this, SettingsActivity::class.java))
+            R.id.action_menu_refresh -> AndroidAPIService.standardForSchool(schoolId).reloadBuses {onReloadBuses(it)}
         }
 
         return super.onOptionsItemSelected(item)
@@ -297,5 +279,17 @@ class BusListActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         AndroidAPIService.standard.off(AndroidAPIService.standard.BUSES_CHANGED_EVENT, busObserver)
+    }
+
+    private fun onReloadBuses(it: Boolean) {
+        loadingPanel.visibility = View.GONE
+        swipeRefreshLayout?.isRefreshing = false
+        if (it) {
+            noInternet.visibility = View.GONE
+            bus_list.visibility = View.VISIBLE
+        } else {
+            noInternet.visibility = View.VISIBLE
+            bus_list.visibility = View.GONE
+        }
     }
 }
