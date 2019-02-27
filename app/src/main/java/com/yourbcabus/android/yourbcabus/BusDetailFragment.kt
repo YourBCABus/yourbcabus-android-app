@@ -10,6 +10,9 @@ import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_bus_detail.*
 import kotlinx.android.synthetic.main.bus_detail.*
 import kotlinx.android.synthetic.main.bus_detail_content.view.*
+import java.sql.Time
+import java.text.SimpleDateFormat
+import java.util.*
 
 /**
  * A fragment representing a single Bus detail screen.
@@ -22,6 +25,7 @@ class BusDetailFragment : Fragment() {
     private var argBusId: String = ""
     private var item: Bus? = null
     private var stops = listOf<Stop>()
+    private var dateFormat = SimpleDateFormat("h:mm a")
 
     val schoolId = "5bca51e785aa2627e14db459"
     val apiService: APIService = AndroidAPIService.standardForSchool(schoolId)
@@ -76,12 +80,14 @@ class BusDetailFragment : Fragment() {
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val item = stops[position]
             holder.busStopView.text = item.name
+            holder.busStopTime.text = dateFormat.format(item.arrival_time)
         }
 
         override fun getItemCount() = stops.size
 
         inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             val busStopView: TextView = view.bus_detail_stop
+            val busStopTime: TextView = view.bus_detail_time
         }
     }
 

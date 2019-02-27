@@ -9,7 +9,7 @@ import java.util.*
 @Target(AnnotationTarget.FIELD)
 annotation class KlaxonDate {
     companion object : Converter {
-        private val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+        private val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX")
 
         override fun canConvert(cls: Class<*>): Boolean = cls == Date::class.java
 
@@ -57,5 +57,6 @@ data class Stop(
         val name: String? = null,
         val description: String? = null,
         val location: Coordinate,
-        val order: Double?
+        val order: Double?,
+        @KlaxonDate val arrival_time: Date
 )
