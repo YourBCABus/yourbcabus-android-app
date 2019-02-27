@@ -54,8 +54,8 @@ data class Bus(
 data class Stop(
         val _id: String,
         val bus_id: String,
-        val name: String?,
-        val description: String?,
+        val name: String? = null,
+        val description: String? = null,
         val location: Coordinate,
         val order: Double?
 )
