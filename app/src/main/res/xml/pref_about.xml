@@ -6,6 +6,10 @@
         android:title="@string/pref_title_privacy_policy" />
 
     <Preference
+        android:key="about_boarding"
+        android:title="@string/pref_title_about_boarding" />
+
+    <Preference
         android:key="app_version"
         android:summary="Lorem Ipsum"
         android:title="@string/pref_title_app_version"

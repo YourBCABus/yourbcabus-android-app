@@ -16,6 +16,7 @@ import android.preference.PreferenceManager
 import android.preference.RingtonePreference
 import android.text.TextUtils
 import android.view.MenuItem
+import android.widget.ListView
 import com.google.firebase.messaging.FirebaseMessaging
 
 /**
@@ -139,6 +140,16 @@ class SettingsActivity : AppCompatPreferenceActivity() {
             }
             findPreference("privacy_policy").widgetLayoutResource = R.layout.pref_icon_link
 
+            findPreference("about_boarding").onPreferenceClickListener = object : Preference.OnPreferenceClickListener {
+                override fun onPreferenceClick(preference: Preference?): Boolean {
+                    val i = Intent(Intent.ACTION_VIEW)
+                    i.data = Uri.parse("https://support.yourbcabus.com/status")
+                    startActivity(i)
+                    return true
+                }
+            }
+            findPreference("about_boarding").widgetLayoutResource = R.layout.pref_icon_link
+
             findPreference("app_version").summary = BuildConfig.VERSION_NAME
         }
 
@@ -149,6 +160,16 @@ class SettingsActivity : AppCompatPreferenceActivity() {
                 return true
             }
             return super.onOptionsItemSelected(item)
+        }
+
+        override fun onActivityCreated(savedInstanceState: Bundle?) {
+            super.onActivityCreated(savedInstanceState)
+
+            // remove dividers
+            val rootView = view
+            val list = rootView!!.findViewById(android.R.id.list) as ListView
+            list.divider = null
+
         }
     }
 

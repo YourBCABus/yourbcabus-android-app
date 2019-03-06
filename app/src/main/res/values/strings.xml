@@ -20,4 +20,5 @@
     <string name="pref_header_about">About</string>
     <string name="pref_title_privacy_policy">Privacy Policy</string>
     <string name="pref_title_app_version">App Version</string>
+    <string name="pref_title_about_boarding">About Boarding Indicators</string>
 </resources>
