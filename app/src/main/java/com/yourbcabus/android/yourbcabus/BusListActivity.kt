@@ -80,7 +80,11 @@ class BusListActivity : AppCompatActivity() {
         noInternet.visibility = View.GONE
 
         AndroidAPIService.standard.on(AndroidAPIService.standard.BUSES_CHANGED_EVENT, busObserver)
-        AndroidAPIService.standardForSchool(schoolId).reloadBuses { onReloadBuses(it) }
+        AndroidAPIService.standardForSchool(schoolId).reloadBuses {
+            loadingPanel.visibility = View.GONE
+            noInternet.visibility = View.VISIBLE
+            bus_list.visibility = View.INVISIBLE
+        }
 
         swipeRefreshLayout = findViewById(R.id.swiperefresh)
 
@@ -100,7 +104,7 @@ class BusListActivity : AppCompatActivity() {
         timer = Timer()
         timer.scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
-                AndroidAPIService.standardForSchool(schoolId).reloadBuses { onReloadBuses(it) }
+                AndroidAPIService.standardForSchool(schoolId).reloadBuses { onReloadBuses(it, true) }
             }
         }, 0, 10000)
     }
@@ -324,14 +328,16 @@ class BusListActivity : AppCompatActivity() {
     }
 
     private fun onReloadBuses(it: Boolean) {
-        loadingPanel.visibility = View.GONE
+        onReloadBuses(it, false)
+    }
+
+    private fun onReloadBuses(it: Boolean, timer: Boolean) {
         swipeRefreshLayout?.isRefreshing = false
         if (it) {
             noInternet.visibility = View.GONE
             bus_list.visibility = View.VISIBLE
         } else {
-            noInternet.visibility = View.VISIBLE
-            bus_list.visibility = View.GONE
+            if (!timer) Toast.makeText(this, "There is no Internet connection.", Toast.LENGTH_LONG).show()
         }
     }
 }
