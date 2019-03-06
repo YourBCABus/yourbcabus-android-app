@@ -40,6 +40,7 @@ data class Bus(
         val name: String?,
         val available: Boolean,
         val locations: Array<String>?,
+        val boarding: Int,
         @KlaxonDate val invalidate_time: Date?
 ) {
     fun isValidated(asOf: Date): Boolean {

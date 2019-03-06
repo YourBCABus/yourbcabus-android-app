@@ -2,8 +2,12 @@ package com.yourbcabus.android.yourbcabus
 
 import android.content.Intent
 import android.content.SharedPreferences
+import android.graphics.PorterDuff
+import android.graphics.drawable.Drawable
+import android.opengl.Visibility
 import android.os.Bundle
 import android.preference.PreferenceManager
+import android.support.v4.graphics.drawable.DrawableCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.RecyclerView
 
@@ -76,13 +80,13 @@ class BusListActivity : AppCompatActivity() {
         noInternet.visibility = View.GONE
 
         AndroidAPIService.standard.on(AndroidAPIService.standard.BUSES_CHANGED_EVENT, busObserver)
-        AndroidAPIService.standardForSchool(schoolId).reloadBuses {onReloadBuses(it)}
+        AndroidAPIService.standardForSchool(schoolId).reloadBuses { onReloadBuses(it) }
 
         swipeRefreshLayout = findViewById(R.id.swiperefresh)
 
         swipeRefreshLayout?.setOnRefreshListener(
                 SwipeRefreshLayout.OnRefreshListener {
-                    AndroidAPIService.standardForSchool(schoolId).reloadBuses {onReloadBuses(it)}
+                    AndroidAPIService.standardForSchool(schoolId).reloadBuses { onReloadBuses(it) }
                 }
         )
 
@@ -96,7 +100,7 @@ class BusListActivity : AppCompatActivity() {
         timer = Timer()
         timer.scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
-                AndroidAPIService.standardForSchool(schoolId).reloadBuses {onReloadBuses(it)}
+                AndroidAPIService.standardForSchool(schoolId).reloadBuses { onReloadBuses(it) }
             }
         }, 0, 10000)
     }
@@ -114,7 +118,7 @@ class BusListActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         when (item?.itemId) {
             R.id.action_settings -> startActivity(Intent(this, SettingsActivity::class.java))
-            R.id.action_menu_refresh -> AndroidAPIService.standardForSchool(schoolId).reloadBuses {onReloadBuses(it)}
+            R.id.action_menu_refresh -> AndroidAPIService.standardForSchool(schoolId).reloadBuses { onReloadBuses(it) }
         }
 
         return super.onOptionsItemSelected(item)
@@ -241,17 +245,54 @@ class BusListActivity : AppCompatActivity() {
 
             val location = item.getLocation(date)
 
+            var indicatorColor: Int
+            var detailString: String
+
+            when {
+                item.boarding < 150 -> {
+                    indicatorColor = R.color.indicator1
+                    detailString = "Expected Early"
+                }
+                item.boarding <= 600 -> {
+                    indicatorColor = R.color.indicator2
+                    detailString = "Expected On Time"
+                }
+                item.boarding <= 900 -> {
+                    indicatorColor = R.color.indicator3
+                    detailString = "Expected Slightly Late"
+                }
+                item.boarding < 1200 -> {
+                    indicatorColor = R.color.indicator4
+                    detailString = "Expected Late"
+                }
+                item.boarding >= 1200 -> {
+                    indicatorColor = R.color.indicator5
+                    detailString = "Expected Very Late"
+                }
+                else -> {
+                    indicatorColor = R.color.indicatorNArrive
+                    detailString = "Not at BCA"
+                }
+            }
+
             if (location == null) {
                 holder.busLocationView.text = "?"
                 parent.background = resources.getDrawable(R.drawable.bg_list_item)
                 holder.busLocationView.setTextColor(resources.getColor(R.color.colorPrimary))
-                holder.busDetailView.text = if (item.available) "Not at BCA" else "Not running"
+                if (!item.available) {
+                    indicatorColor = R.color.indicatorNAvailable
+                    detailString = "Not running"
+                }
             } else {
                 holder.busLocationView.text = location
                 parent.background = resources.getDrawable(R.drawable.bg_list_item_arrived)
                 holder.busLocationView.setTextColor(resources.getColor(R.color.white))
-                holder.busDetailView.text = "Arrived at BCA"
+                indicatorColor = R.color.indicatorArrive
+                detailString = "Arrived at BCA"
             }
+
+            holder.busBoardingView.background.setTint(resources.getColor(indicatorColor))
+            holder.busDetailView.text = detailString
 
             holder.savedCheckbox.isChecked = savedBuses.contains(item._id)
 
@@ -271,6 +312,7 @@ class BusListActivity : AppCompatActivity() {
             val savedCheckbox: CheckBox = view.bus_saved
             val divider: View = view.divider
             val busView: View = view.bus_view
+            val busBoardingView: View = view.bus_boarding_indicator
 
             val bus get() = itemView.tag as? Bus
         }
