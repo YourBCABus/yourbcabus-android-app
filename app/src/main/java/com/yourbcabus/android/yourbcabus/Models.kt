@@ -2,6 +2,7 @@ package com.yourbcabus.android.yourbcabus
 
 import com.beust.klaxon.Converter
 import com.beust.klaxon.JsonValue
+import java.lang.Exception
 import java.text.SimpleDateFormat
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -9,16 +10,14 @@ import java.util.*
 @Target(AnnotationTarget.FIELD)
 annotation class KlaxonDate {
     companion object : Converter {
-        private val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX")
-
         override fun canConvert(cls: Class<*>): Boolean = cls == Date::class.java
 
         override fun fromJson(jv: JsonValue): Any? {
-            return formatter.parse(jv.string)
+            throw Exception()
         }
 
         override fun toJson(value: Any): String {
-            return formatter.format(value)
+            throw Exception()
         }
     }
 }
