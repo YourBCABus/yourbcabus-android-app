@@ -252,30 +252,31 @@ class BusListActivity : AppCompatActivity() {
             var indicatorColor: Int
             var detailString: String
 
-            when {
-                item.boarding < 150 -> {
-                    indicatorColor = R.color.indicator1
-                    detailString = "Expected Early"
-                }
-                item.boarding <= 600 -> {
-                    indicatorColor = R.color.indicator2
-                    detailString = "Expected On Time"
-                }
-                item.boarding <= 900 -> {
-                    indicatorColor = R.color.indicator3
-                    detailString = "Expected Slightly Late"
-                }
-                item.boarding < 1200 -> {
-                    indicatorColor = R.color.indicator4
-                    detailString = "Expected Late"
-                }
-                item.boarding >= 1200 -> {
-                    indicatorColor = R.color.indicator5
-                    detailString = "Expected Very Late"
-                }
-                else -> {
-                    indicatorColor = R.color.indicatorNArrive
-                    detailString = "Not at BCA"
+            if (item.boarding == null) {
+                indicatorColor = R.color.indicatorNArrive
+                detailString = "Not at BCA"
+            } else {
+                when {
+                    item.boarding < 150 -> {
+                        indicatorColor = R.color.indicator1
+                        detailString = "Expected Early"
+                    }
+                    item.boarding <= 600 -> {
+                        indicatorColor = R.color.indicator2
+                        detailString = "Expected On Time"
+                    }
+                    item.boarding <= 900 -> {
+                        indicatorColor = R.color.indicator3
+                        detailString = "Expected Slightly Late"
+                    }
+                    item.boarding < 1200 -> {
+                        indicatorColor = R.color.indicator4
+                        detailString = "Expected Late"
+                    }
+                    else -> {
+                        indicatorColor = R.color.indicator5
+                        detailString = "Expected Very Late"
+                    }
                 }
             }
 

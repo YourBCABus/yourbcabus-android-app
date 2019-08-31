@@ -79,11 +79,11 @@ data class School(
 data class Bus(
         val _id: String,
         val school_id: String,
-        val name: String?,
+        val name: String? = null,
         val available: Boolean,
-        val locations: Array<String>?,
-        val boarding: Int,
-        @KlaxonDate val invalidate_time: Date?
+        val locations: Array<String>? = null,
+        val boarding: Int? = null,
+        @KlaxonDate val invalidate_time: Date? = null
 ) {
     fun isValidated(asOf: Date): Boolean {
         return invalidate_time == null || asOf < invalidate_time
