@@ -19,7 +19,7 @@ android {
         applicationId "com.yourbcabus.android.yourbcabus"
         minSdkVersion 22
         targetSdkVersion 28
-        versionCode 8
+        versionCode 9
         versionName "1.1.0-beta.3"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -42,7 +42,7 @@ android {
 
 play {
     serviceAccountCredentials = file("../gplay-services.json")
-    track = "internal"
+    track = "beta"
     defaultToAppBundles = true
 }
 
