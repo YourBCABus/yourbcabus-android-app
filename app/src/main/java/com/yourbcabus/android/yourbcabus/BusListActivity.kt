@@ -21,6 +21,7 @@ import java.util.*
 import android.support.v7.app.AlertDialog
 import android.view.LayoutInflater
 import android.widget.*
+import java.text.SimpleDateFormat
 
 
 /**
@@ -294,6 +295,20 @@ class BusListActivity : AppCompatActivity() {
                 holder.busLocationView.setTextColor(resources.getColor(R.color.white))
                 indicatorColor = R.color.indicatorArrive
                 detailString = "Arrived at BCA"
+            }
+
+            if (item.departure != null) {
+                val cal = GregorianCalendar()
+                cal.set(Calendar.HOUR_OF_DAY, item.departure / 60)
+                cal.set(Calendar.MINUTE, item.departure % 60)
+                cal.set(Calendar.SECOND, 0)
+
+                val departureString = SimpleDateFormat("h:mm", Locale.US).format(cal.time)
+
+                detailString = if (Date() <= cal.time)
+                    "Departs at $departureString"
+                else
+                    "Departed at $departureString"
             }
 
             holder.busBoardingView.background.setTint(resources.getColor(indicatorColor))
